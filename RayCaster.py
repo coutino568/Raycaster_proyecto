@@ -2,6 +2,8 @@ import pygame
 import pygame_menu
 
 from math import cos, sin, pi
+from pygame import mixer
+
 
 RAY_AMOUNT = 100
 
@@ -14,8 +16,12 @@ RAY_AMOUNT = 100
 #     }
 
 wallTextures = {
-    '1': pygame.image.load('wall1.png')
+    '1': pygame.image.load('wall1.png'),
+    '2': pygame.image.load('wall2.png'),
+    '3': pygame.image.load('wall3.png')
+
     }
+
 
 
 class Raycaster(object):
@@ -133,8 +139,8 @@ class Raycaster(object):
 
             # perceivedHeight = screenHeight / (distance * cos( rayAngle - viewAngle)) * wallHeight
             h = self.height / (dist * cos( (angle - self.player["angle"]) * pi / 180)) * self.wallheight
-            startY =int(10)
-            #startY = int(halfHeight - h/2)
+            #startY =int(10)
+            startY = int(halfHeight - h/2)
             endY = int(halfHeight + h/2)
 
             color_k = (1 - min(1, dist / self.maxdistance)) * 255
@@ -191,6 +197,9 @@ menu.add.button('Quit', pygame_menu.events.EXIT)
 isRunning = True
 isPaused= False
 
+mixer.music.load('music.mp3')
+mixer.music.play(-1)
+
 rCaster = Raycaster(screen)
 rCaster.load_map(map)
 
@@ -218,45 +227,124 @@ def updateStatus():
     stat = font.render(mode, 1, pygame.Color("yellow")) 
     return stat
 
+m_forward=False
+m_backward=False
+m_left= False
+m_right= False
+t_right=False
+t_left=False
 
 while isRunning:
+    newX = rCaster.player['x']
+    newY = rCaster.player['y']
+    forward = rCaster.player['angle'] * pi / 180
+    right = (rCaster.player['angle'] + 90) * pi / 180
+    #forward = rCaster.player['angle'] * pi / 180
+    #right = (rCaster.player['angle'] + 90) * pi / 180
+
+
+    if m_forward==True and isPaused==False :
+        newX += cos(forward) * rCaster.stepSize
+        newY += sin(forward) * rCaster.stepSize
+        # i = int(newX/rCaster.blocksize)
+        # j = int(newY/rCaster.blocksize)
+
+        # if rCaster.map[j][i] == ' ':
+        #     rCaster.player['x'] = newX
+        #     rCaster.player['y'] = newY
+
+    if m_backward==True and isPaused==False :
+        
+        newX -= cos(forward) * rCaster.stepSize
+        newY -= sin(forward) * rCaster.stepSize
+        # i = int(newX/rCaster.blocksize)
+        # j = int(newY/rCaster.blocksize)
+
+        # if rCaster.map[j][i] == ' ':
+        #     rCaster.player['x'] = newX
+        #     rCaster.player['y'] = newY
+
+    if m_right==True and isPaused==False:
+        
+        newX += cos(right) * rCaster.stepSize
+        newY += sin(right) * rCaster.stepSize
+        # i = int(newX/rCaster.blocksize)
+        # j = int(newY/rCaster.blocksize)
+
+        # if rCaster.map[j][i] == ' ':
+        #     rCaster.player['x'] = newX
+        #     rCaster.player['y'] = newY
+    if m_left==True and isPaused==False :
+        
+        newX -= cos(right) * rCaster.stepSize
+        newY -= sin(right) * rCaster.stepSize
+        # i = int(newX/rCaster.blocksize)
+        # j = int(newY/rCaster.blocksize)
+
+        # if rCaster.map[j][i] == ' ':
+        #     rCaster.player['x'] = newX
+        #     rCaster.player['y'] = newY
+
+
+    if t_left:
+        rCaster.player['angle'] -= rCaster.turnSize
+
+    if t_right:
+        rCaster.player['angle'] += rCaster.turnSize
+
+    i = int(newX/rCaster.blocksize)
+    j = int(newY/rCaster.blocksize)
+
+    if rCaster.map[j][i] == ' ':
+        rCaster.player['x'] = newX
+        rCaster.player['y'] = newY
+
 
     for ev in pygame.event.get():
         if ev.type == pygame.QUIT:
             isRunning = False
 
         elif ev.type == pygame.KEYDOWN:
-            newX = rCaster.player['x']
-            newY = rCaster.player['y']
-            forward = rCaster.player['angle'] * pi / 180
-            right = (rCaster.player['angle'] + 90) * pi / 180
+            
 
             if ev.key == pygame.K_ESCAPE:
                 isPaused = not isPaused
             elif isPaused==False:
+                #navigation forward
                 if ev.key == pygame.K_w:
-                    newX += cos(forward) * rCaster.stepSize
-                    newY += sin(forward) * rCaster.stepSize
-                elif ev.key == pygame.K_s:
-                    newX -= cos(forward) * rCaster.stepSize
-                    newY -= sin(forward) * rCaster.stepSize
-                elif ev.key == pygame.K_a:
-                    newX -= cos(right) * rCaster.stepSize
-                    newY -= sin(right) * rCaster.stepSize
-                elif ev.key == pygame.K_d:
-                    newX += cos(right) * rCaster.stepSize
-                    newY += sin(right) * rCaster.stepSize
-                elif ev.key == pygame.K_q:
-                    rCaster.player['angle'] -= rCaster.turnSize
-                elif ev.key == pygame.K_e:
-                    rCaster.player['angle'] += rCaster.turnSize
+                    m_forward=True
+                else:
+                    m_forward=False
+                #NANAvigation left
+                if ev.key == pygame.K_s:
+                    m_backward=True
+                else:
+                    m_backward=False
+                #navigation left
+                if ev.key == pygame.K_a:
+                    m_left = True
+                    
+                else:
+                    m_left=False
+                #navigation right
+                if ev.key == pygame.K_d:
+                    m_right = True
+                    
+                else:
+                    m_right=False
 
-            i = int(newX/rCaster.blocksize)
-            j = int(newY/rCaster.blocksize)
 
-            if rCaster.map[j][i] == ' ':
-                rCaster.player['x'] = newX
-                rCaster.player['y'] = newY
+                if ev.key == pygame.K_q:
+                    t_left=True
+                else:
+                    t_left=False
+                if ev.key == pygame.K_e:
+                    t_right=True
+                else:
+                    t_right=False
+                    
+
+            
 
 
     screen.fill(pygame.Color("gray"))
