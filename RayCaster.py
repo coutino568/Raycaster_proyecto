@@ -286,10 +286,10 @@ while isRunning:
         #     rCaster.player['y'] = newY
 
 
-    if t_left:
+    if t_left and isPaused==False:
         rCaster.player['angle'] -= rCaster.turnSize
 
-    if t_right:
+    if t_right and isPaused==False:
         rCaster.player['angle'] += rCaster.turnSize
 
     i = int(newX/rCaster.blocksize)
@@ -305,7 +305,6 @@ while isRunning:
             isRunning = False
 
         elif ev.type == pygame.KEYDOWN:
-            
 
             if ev.key == pygame.K_ESCAPE:
                 isPaused = not isPaused
@@ -332,8 +331,6 @@ while isRunning:
                     
                 else:
                     m_right=False
-
-
                 if ev.key == pygame.K_q:
                     t_left=True
                 else:
@@ -342,6 +339,14 @@ while isRunning:
                     t_right=True
                 else:
                     t_right=False
+        elif ev.type == pygame.KEYUP:
+            #print("Released")
+            m_forward=False
+            m_backward=False
+            m_left= False
+            m_right= False
+            t_right=False
+            t_left=False
                     
 
             
