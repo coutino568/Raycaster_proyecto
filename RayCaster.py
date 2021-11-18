@@ -133,13 +133,16 @@ class Raycaster(object):
             angle = self.player['angle'] - (self.player['fov'] / 2) + (self.player['fov'] * column / RAY_AMOUNT)
             dist, id, tx = self.castRay(angle)
 
+            #rayWidth = 0
             rayWidth = int(( 1 / RAY_AMOUNT) * halfWidth)
 
             startX = halfWidth + int(( (column / RAY_AMOUNT) * halfWidth))
 
             # perceivedHeight = screenHeight / (distance * cos( rayAngle - viewAngle)) * wallHeight
             h = self.height / (dist * cos( (angle - self.player["angle"]) * pi / 180)) * self.wallheight
-            #startY =int(10)
+            
+            #startY =int(0)
+            #endY = int (500)
             startY = int(halfHeight - h/2)
             endY = int(halfHeight + h/2)
 
@@ -180,14 +183,14 @@ def start_the_game():
    
 
 
-width = 1000
+width = 1000 
 height = 500
 
 pygame.init()
 screen = pygame.display.set_mode((width,height), pygame.DOUBLEBUF | pygame.HWACCEL )
 screen.set_alpha(None)
 
-menu = pygame_menu.Menu('MAIN MENU', 1000, 500,
+menu = pygame_menu.Menu('MAIN MENU', width, height,
                        theme=pygame_menu.themes.THEME_DARK)
 
 menu.add.selector('Level :', [('1', 1), ('2', 2)], onchange=set_difficulty)
@@ -349,16 +352,18 @@ while isRunning:
             t_left=False
                     
 
-            
+            #226324
+            #4B7238
 
 
-    screen.fill(pygame.Color("gray"))
+
+    screen.fill(pygame.Color(75,110,50,255))
 
     # Techo
-    screen.fill(pygame.Color("saddlebrown"), (int(width / 2), 0,  int(width / 2), int(height / 2)))
+    screen.fill(pygame.Color(115,240,245,255), (int(width / 2), 0,  int(width / 2), int(height / 2)))
 
     # Piso
-    screen.fill(pygame.Color("dimgray"), (int(width / 2), int(height / 2),  int(width / 2), int(height / 2)))
+    screen.fill(pygame.Color(75,110,50,255), (int(width / 2), int(height / 2),  int(width / 2), int(height / 2)))
 
 
     rCaster.render()
@@ -368,7 +373,7 @@ while isRunning:
     screen.blit(updateFPS(), (0,0))
 
     screen.blit(updateStatus(),(50,0))
-    clock.tick(60)
+    clock.tick(120)
 
 
     pygame.display.flip()
